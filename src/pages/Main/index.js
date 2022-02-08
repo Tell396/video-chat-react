@@ -1,16 +1,20 @@
-import {useState, useEffect, useRef} from 'react';
+import { useState, useEffect, useRef } from 'react';
 import socket from '../../socket';
 import ACTIONS from '../../socket/actions';
-import {useHistory} from 'react-router';
-import {v4} from 'uuid';
+import { useNavigate } from 'react-router';
+import { v4 } from 'uuid';
+
+import ReactiveButton from 'reactive-button';
+import styles from './index.css';
 
 export default function Main() {
-  const history = useHistory();
+  const [state, setState] = useState('idle');
+  const navigate = useNavigate();
   const [rooms, updateRooms] = useState([]);
   const rootNode = useRef();
 
   useEffect(() => {
-    socket.on(ACTIONS.SHARE_ROOMS, ({rooms = []} = {}) => {
+    socket.on(ACTIONS.SHARE_ROOMS, ({ rooms = [] } = {}) => {
       if (rootNode.current) {
         updateRooms(rooms);
       }
@@ -22,19 +26,26 @@ export default function Main() {
       <h1>Available Rooms</h1>
 
       <ul>
-        {rooms.map(roomID => (
+        {rooms.map((roomID) => (
           <li key={roomID}>
             {roomID}
-            <button onClick={() => {
-              history.push(`/room/${roomID}`);
-            }}>JOIN ROOM</button>
+            <ReactiveButton 
+            onClick={() => {navigate(`/room/${roomID}`);}}
+            style={{ borderRadius: '5px' }}
+            rounded
+            idleText={'Join Room'}
+            />
           </li>
         ))}
       </ul>
 
-      <button onClick={() => {
-        history.push(`/room/${v4()}`);
-      }}>Create New Room</button>
+      <ReactiveButton
+        onClick={() => {navigate(`/room/${v4()}`)}}
+        style={{ borderRadius: '5px' }}
+        outline
+        idleText={'Create Room'}
+      />
     </div>
   );
 }
+
